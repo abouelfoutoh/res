@@ -28,6 +28,7 @@ const navigationItems = [
   { path: '/pos', icon: Calculator, label: 'نقطة البيع', roles: ['admin', 'cashier'] },
   { path: '/invoices', icon: Receipt, label: 'إدارة الفواتير', roles: ['admin'] },
   { path: '/promotions', icon: Tag, label: 'العروض', roles: ['admin', 'cashier'] },
+  { path: '/customers', icon: Users, label: 'العملاء', roles: ['admin'] },
   { path: '/shifts', icon: Clock, label: 'إدارة الشيفتات', roles: ['admin'] },
   { path: '/attendance', icon: UserCheck, label: 'الحضور والانصراف', roles: ['admin'] },
   { path: '/kitchen', icon: ChefHat, label: 'المطبخ', roles: ['admin', 'kitchen'] },
@@ -36,8 +37,9 @@ const navigationItems = [
   { path: '/suppliers', icon: Truck, label: 'الموردين', roles: ['admin'] },
   { path: '/reports', icon: BarChart3, label: 'التقارير', roles: ['admin'] },
   { path: '/employees', icon: Users, label: 'الموظفين', roles: ['admin'] },
+  { path: '/waiters', icon: Users, label: 'الويترية', roles: ['admin'] },
   { path: '/menu', icon: MenuIcon, label: 'المنيو', roles: ['admin', 'cashier'] },
-  { path: '/orders', icon: ShoppingCart, label: 'الطلبات', roles: ['admin', 'kitchen'] },
+  { path: '/orders', icon: ShoppingCart, label: 'الطلبات', roles: ['admin'] },
   { path: '/settings', icon: Settings, label: 'الإعدادات', roles: ['admin'] },
 ];
 

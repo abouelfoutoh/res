@@ -55,6 +55,9 @@ const Invoices = () => {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedPayment, setSelectedPayment] = useState('all');
   const [dateFilter, setDateFilter] = useState('today');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+
 
   // Mock invoices data
   const [invoices, setInvoices] = useState<Invoice[]>([
@@ -183,7 +186,7 @@ const Invoices = () => {
           </head>
           <body>
             <div class="header">
-              <h1>مطعم الشام الأصيل</h1>
+              <h1>مطعم ابوالفتوح للمأ:ولات الشامية</h1>
               <p>القاهرة، مصر</p>
               <h2>فاتورة رقم: ${invoice.invoiceNumber}</h2>
             </div>
@@ -519,6 +522,9 @@ const Invoices = () => {
           )}
         </CardContent>
       </Card>
+
+      
+      
     </div>
   );
 };

@@ -22,7 +22,8 @@ import ShiftManagement from "./pages/ShiftManagement";
 import Attendance from "./pages/Attendance";
 import Invoices from "./pages/Invoices";
 import NotFound from "./pages/NotFound";
-
+import Customers from "./pages/Customers";
+import Waiters from "./pages/Waiters";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -72,6 +73,11 @@ const App = () => (
                 <Suppliers />
               </ProtectedRoute>
             } />
+            <Route path="/waiters" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Waiters />
+              </ProtectedRoute>
+            } />
             
             <Route path="/promotions" element={
               <ProtectedRoute allowedRoles={['admin', 'cashier']}>
@@ -84,6 +90,12 @@ const App = () => (
                 <ShiftManagement />
               </ProtectedRoute>
             } />
+
+            <Route path="/customers" element={
+  <ProtectedRoute allowedRoles={['admin']}>
+    <Customers />
+  </ProtectedRoute>
+} />
             
             <Route path="/attendance" element={
               <ProtectedRoute allowedRoles={['admin']}>

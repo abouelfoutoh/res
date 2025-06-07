@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+const waiters = ["محمد", "أحمد", "سارة", "نور"];
+
 import { 
   ShoppingCart, 
   Plus, 
@@ -435,7 +438,18 @@ const POS = () => {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
             />
+<Select onValueChange={(value) => setCustomerName(value)} value={customerName}>
+  <SelectTrigger>
+    <SelectValue placeholder="نوع الأوردر" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="داخل المطعم">داخل المطعم</SelectItem>
+    <SelectItem value="تيك أواي">تيك أواي</SelectItem>
+    <SelectItem value="دليفري">دليفري</SelectItem>
+  </SelectContent>
+</Select>
 
+            
             {/* Cart Items */}
             <div className="space-y-3 max-h-60 overflow-y-auto">
               {cart.length === 0 ? (
