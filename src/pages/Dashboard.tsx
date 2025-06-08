@@ -49,6 +49,13 @@ const Dashboard = () => {
     { name: 'طحينة', current: 5, minimum: 8 },
   ];
 
+  // بيانات شيفتات وهمية
+  const shifts = [
+    { id: 's1', employee: 'محمود علي', role: 'كاشير', startTime: '08:00', endTime: '16:00', status: 'active' },
+    { id: 's2', employee: 'سارة أحمد', role: 'ويتر', startTime: '09:00', endTime: '17:00', status: 'active' },
+    { id: 's3', employee: 'علي حسن', role: 'شيف', startTime: '07:00', endTime: '15:00', status: 'closed' },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -198,7 +205,34 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+      <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              ملخص الشيفتات
+            </CardTitle>
+            <CardDescription>الشيفتات النشطة حالياً</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {shifts.filter(shift => shift.status === 'active').map((shift) => (
+                <div key={shift.id} className="flex justify-between items-center p-2 bg-gray-50 rounded-md border border-gray-200">
+                  <div>
+                    <p className="font-semibold">{shift.employee}</p>
+                    <p className="text-sm text-gray-600">{shift.role}</p>
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    {shift.startTime} - {shift.endTime}
+                  </div>
+                </div>
+              ))}
+              {shifts.filter(shift => shift.status === 'active').length === 0 && (
+                <p className="text-center text-gray-500">لا توجد شيفتات نشطة حالياً</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
   );
 };
 

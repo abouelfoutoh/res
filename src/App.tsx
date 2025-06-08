@@ -24,6 +24,7 @@ import Invoices from "./pages/Invoices";
 import NotFound from "./pages/NotFound";
 import Customers from "./pages/Customers";
 import Waiters from "./pages/Waiters";
+import Branches from "./pages/Branches";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -59,6 +60,11 @@ const App = () => (
             <Route path="/products" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Products />
+              </ProtectedRoute>
+            } />
+            <Route path="/branches" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Branches />
               </ProtectedRoute>
             } />
             

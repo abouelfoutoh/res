@@ -61,8 +61,8 @@ const Orders = () => {
       id: '1',
       orderNumber: 'ORD-2024-001',
       customerName: 'أحمد محمد سالم',
-      customerPhone: '+966501234567',
-      customerAddress: 'الرياض، حي النخيل، شارع الملك فهد',
+      customerPhone: '01029116415',
+      customerAddress: "القاهرة، حي المعادي، شارع النيل",
       items: [
         { name: 'شاورما لحم', quantity: 2, price: 25 },
         { name: 'فتوش', quantity: 1, price: 15 },
@@ -85,7 +85,7 @@ const Orders = () => {
       id: '2',
       orderNumber: 'ORD-2024-002',
       customerName: 'فاطمة علي أحمد',
-      customerPhone: '+966507654321',
+      customerPhone: '01029116415',
       items: [
         { name: 'فروج مشوي', quantity: 1, price: 35 },
         { name: 'تبولة', quantity: 1, price: 12 },
@@ -106,7 +106,7 @@ const Orders = () => {
       id: '3',
       orderNumber: 'ORD-2024-003',
       customerName: 'محمد سالم عبدالله',
-      customerPhone: '+966509876543',
+      customerPhone: '01029116415',
       items: [
         { name: 'كباب مشكل', quantity: 3, price: 45 },
         { name: 'حمص بطحينة', quantity: 2, price: 10 },
@@ -127,8 +127,8 @@ const Orders = () => {
       id: '4',
       orderNumber: 'ORD-2024-004',
       customerName: 'سارة أحمد محمد',
-      customerPhone: '+966502468135',
-      customerAddress: 'الرياض، حي العليا، مجمع الراشد',
+      customerPhone: '01029116415',
+      customerAddress: "القاهرة، حي الزمالك، شارع 26 يوليو",
       items: [
         { name: 'فتوش', quantity: 2, price: 15 },
         { name: 'عصير ليمون نعنع', quantity: 3, price: 8 },
@@ -150,7 +150,7 @@ const Orders = () => {
       id: '5',
       orderNumber: 'ORD-2024-005',
       customerName: 'خالد سالم أحمد',
-      customerPhone: '+966501357924',
+      customerPhone: '010000000000',
       items: [
         { name: 'شاورما لحم', quantity: 1, price: 25 }
       ],

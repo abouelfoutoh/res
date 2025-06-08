@@ -39,7 +39,7 @@ const Menu = () => {
   const [menuItems] = useState<MenuItem[]>([
     {
       id: '1',
-      name: 'شاورما لحم الشام الأصيل',
+      name: 'شاورما لحم ',
       description: 'شاورما لحم طازج مطبوخ على الفحم مع الخضار الطازجة والصلصة الخاصة، يقدم في خبز عربي طازج',
       price: 45,
       category: 'main',
@@ -250,7 +250,7 @@ const Menu = () => {
             <MenuIcon className="h-8 w-8 text-orange-600" />
             قائمة الطعام
           </h1>
-          <p className="text-gray-600 mt-2">تصفح قائمة مطعم الشام الأصيل</p>
+          <p className="text-gray-600 mt-2">تصفح المنيو</p>
         </div>
         {user?.role === 'admin' && (
           <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
