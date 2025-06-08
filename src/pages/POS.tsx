@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-const waiters = ["محمد", "أحمد", "سارة", "نور"];
+//const waiters = ["محمد", "أحمد", "سارة", "نور"];
 
 import { 
   ShoppingCart, 
