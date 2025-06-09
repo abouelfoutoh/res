@@ -34,7 +34,8 @@ const navigationItems = [
   { path: '/attendance', icon: UserCheck, label: 'الحضور والانصراف', roles: ['admin'] },
   { path: '/employees', icon: Users, label: 'الموظفين', roles: ['admin'] },
   { path: '/waiters', icon: Users, label: 'الويترية', roles: ['admin'] },
- 
+  { path: '/tables', icon: Users, label: 'الطاولات', roles: ['admin'] },
+  { path: '/delivery-drivers', icon: Truck, label: 'طياري الدليفري', roles: ['admin'] },
   { path: '/kitchen', icon: ChefHat, label: 'المطبخ', roles: ['admin', 'kitchen'] },
   { path: '/branches', icon: Warehouse, label: "الفروع", roles: ['admin'] },
   { path: '/invoices', icon: Receipt, label: 'إدارة الفواتير', roles: ['admin'] },

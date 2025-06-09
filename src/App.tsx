@@ -25,6 +25,9 @@ import NotFound from "./pages/NotFound";
 import Customers from "./pages/Customers";
 import Waiters from "./pages/Waiters";
 import Branches from "./pages/Branches";
+import Tables from "./pages/Tables";
+import DeliveryDrivers from "./pages/DeliveryDrivers";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -62,9 +65,22 @@ const App = () => (
                 <Products />
               </ProtectedRoute>
             } />
+            
             <Route path="/branches" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Branches />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/tables" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Tables />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/delivery-drivers" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <DeliveryDrivers />
               </ProtectedRoute>
             } />
             
@@ -79,6 +95,7 @@ const App = () => (
                 <Suppliers />
               </ProtectedRoute>
             } />
+            
             <Route path="/waiters" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Waiters />
@@ -98,10 +115,10 @@ const App = () => (
             } />
 
             <Route path="/customers" element={
-  <ProtectedRoute allowedRoles={['admin']}>
-    <Customers />
-  </ProtectedRoute>
-} />
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Customers />
+              </ProtectedRoute>
+            } />
             
             <Route path="/attendance" element={
               <ProtectedRoute allowedRoles={['admin']}>

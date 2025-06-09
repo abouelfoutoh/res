@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-//const waiters = ["محمد", "أحمد", "سارة", "نور"];
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 import { 
   ShoppingCart, 
@@ -16,7 +17,10 @@ import {
   Calculator,
   CreditCard,
   Banknote,
-  Printer
+  Printer,
+  Users,
+  Truck,
+  Home
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -37,12 +41,29 @@ interface Product {
   image?: string;
 }
 
+interface Table {
+  id: string;
+  number: string;
+  capacity: number;
+  status: 'available' | 'occupied' | 'reserved' | 'cleaning';
+}
+
+interface DeliveryDriver {
+  id: string;
+  name: string;
+  status: 'available' | 'busy' | 'offline';
+  vehicleType: string;
+}
+
 interface Invoice {
   id: string;
   invoiceNumber: string;
   date: string;
   time: string;
   customerName: string;
+  orderType: 'dine-in' | 'takeaway' | 'delivery';
+  tableNumber?: string;
+  driverName?: string;
   items: CartItem[];
   subtotal: number;
   discount: number;
@@ -59,14 +80,19 @@ const POS = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [customerName, setCustomerName] = useState('');
+  const [orderType, setOrderType] = useState<'dine-in' | 'takeaway' | 'delivery'>('dine-in');
+  const [selectedTable, setSelectedTable] = useState('');
+  const [selectedDriver, setSelectedDriver] = useState('');
   const [discount, setDiscount] = useState(0);
   const [taxRate] = useState(14); // 14% tax rate for Egypt
+  const [showTableDialog, setShowTableDialog] = useState(false);
+  const [showDriverDialog, setShowDriverDialog] = useState(false);
   
   // Invoice numbering system
-  const [lastInvoiceNumber, setLastInvoiceNumber] = useState(1000); // Starting from 1001
+  const [lastInvoiceNumber, setLastInvoiceNumber] = useState(1000);
   const [invoiceHistory, setInvoiceHistory] = useState<Invoice[]>([]);
 
-  // Mock products data with stock
+  // Mock data
   const [products, setProducts] = useState<Product[]>([
     { id: '1', name: 'شاورما لحم', price: 45, category: 'main', stock: 25 },
     { id: '2', name: 'فروج مشوي', price: 65, category: 'main', stock: 15 },
@@ -78,6 +104,21 @@ const POS = () => {
     { id: '8', name: 'عصير برتقال', price: 12, category: 'drinks', stock: 50 },
     { id: '9', name: 'شاي أحمر', price: 8, category: 'drinks', stock: 100 },
     { id: '10', name: 'قهوة عربية', price: 10, category: 'drinks', stock: 80 },
+  ]);
+
+  const [tables] = useState<Table[]>([
+    { id: '1', number: '1', capacity: 4, status: 'available' },
+    { id: '2', number: '2', capacity: 2, status: 'available' },
+    { id: '3', number: '3', capacity: 6, status: 'occupied' },
+    { id: '4', number: '4', capacity: 4, status: 'available' },
+    { id: '5', number: '5', capacity: 8, status: 'available' },
+  ]);
+
+  const [drivers] = useState<DeliveryDriver[]>([
+    { id: '1', name: 'محمد أحمد', status: 'available', vehicleType: 'motorcycle' },
+    { id: '2', name: 'علي حسن', status: 'available', vehicleType: 'motorcycle' },
+    { id: '3', name: 'سارة محمد', status: 'busy', vehicleType: 'car' },
+    { id: '4', name: 'أحمد سالم', status: 'available', vehicleType: 'bicycle' },
   ]);
 
   const categories = [
@@ -94,6 +135,9 @@ const POS = () => {
     const hasStock = product.stock > 0;
     return matchesSearch && matchesCategory && hasStock;
   });
+
+  const availableTables = tables.filter(table => table.status === 'available');
+  const availableDrivers = drivers.filter(driver => driver.status === 'available');
 
   const addToCart = (product: Product) => {
     if (product.stock <= 0) {
@@ -162,6 +206,9 @@ const POS = () => {
   const clearCart = () => {
     setCart([]);
     setCustomerName('');
+    setOrderType('dine-in');
+    setSelectedTable('');
+    setSelectedDriver('');
     setDiscount(0);
   };
 
@@ -174,7 +221,7 @@ const POS = () => {
   const generateInvoiceNumber = () => {
     const newInvoiceNumber = lastInvoiceNumber + 1;
     setLastInvoiceNumber(newInvoiceNumber);
-    return newInvoiceNumber.toString().padStart(6, '0'); // Format: 001001, 001002, etc.
+    return newInvoiceNumber.toString().padStart(6, '0');
   };
 
   const reduceInventory = () => {
@@ -195,12 +242,18 @@ const POS = () => {
     const now = new Date();
     const invoiceNumber = generateInvoiceNumber();
     
+    const selectedTableData = tables.find(t => t.id === selectedTable);
+    const selectedDriverData = drivers.find(d => d.id === selectedDriver);
+    
     const invoice: Invoice = {
       id: Date.now().toString(),
       invoiceNumber,
       date: now.toLocaleDateString('ar-EG'),
       time: now.toLocaleTimeString('ar-EG'),
       customerName: customerName || 'عميل',
+      orderType,
+      tableNumber: selectedTableData?.number,
+      driverName: selectedDriverData?.name,
       items: [...cart],
       subtotal,
       discount,
@@ -221,6 +274,9 @@ const POS = () => {
       date: new Date().toLocaleDateString('ar-EG'),
       time: new Date().toLocaleTimeString('ar-EG'),
       customerName: customerName || 'عميل',
+      orderType,
+      tableNumber: tables.find(t => t.id === selectedTable)?.number,
+      driverName: drivers.find(d => d.id === selectedDriver)?.name,
       items: cart,
       subtotal,
       discount,
@@ -228,6 +284,15 @@ const POS = () => {
       taxRate,
       taxAmount,
       total
+    };
+
+    const getOrderTypeText = (type: string) => {
+      switch (type) {
+        case 'dine-in': return 'داخل المطعم';
+        case 'takeaway': return 'تيك أواي';
+        case 'delivery': return 'دليفري';
+        default: return type;
+      }
     };
 
     const invoiceContent = `
@@ -239,6 +304,9 @@ const POS = () => {
           <p>التاريخ: ${invoiceData.date}</p>
           <p>الوقت: ${invoiceData.time}</p>
           ${invoiceData.customerName !== 'عميل' ? `<p>العميل: ${invoiceData.customerName}</p>` : ''}
+          <p><strong>نوع الطلب:</strong> ${getOrderTypeText(invoiceData.orderType)}</p>
+          ${invoiceData.tableNumber ? `<p><strong>رقم الطاولة:</strong> ${invoiceData.tableNumber}</p>` : ''}
+          ${invoiceData.driverName ? `<p><strong>الطيار:</strong> ${invoiceData.driverName}</p>` : ''}
         </div>
         
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -316,9 +384,23 @@ const POS = () => {
   };
 
   const handleCheckout = (paymentMethod: 'cash' | 'card') => {
+    // Validate order type requirements
+    if (orderType === 'dine-in' && !selectedTable) {
+      setShowTableDialog(true);
+      return;
+    }
+    
+    if (orderType === 'delivery' && !selectedDriver) {
+      setShowDriverDialog(true);
+      return;
+    }
+    
     console.log('Processing checkout:', {
       cart,
       customerName,
+      orderType,
+      selectedTable,
+      selectedDriver,
       subtotal,
       discount,
       taxAmount,
@@ -340,6 +422,15 @@ const POS = () => {
       title: "تم إتمام البيع بنجاح!",
       description: `فاتورة رقم: ${invoice.invoiceNumber} - تم خصم الكميات من المخزون وطباعة الفاتورة`,
     });
+  };
+
+  const getOrderTypeIcon = (type: string) => {
+    switch (type) {
+      case 'dine-in': return <Home className="h-4 w-4" />;
+      case 'takeaway': return <ShoppingCart className="h-4 w-4" />;
+      case 'delivery': return <Truck className="h-4 w-4" />;
+      default: return <Home className="h-4 w-4" />;
+    }
   };
 
   return (
@@ -438,17 +529,87 @@ const POS = () => {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
             />
-<Select onValueChange={(value) => setCustomerName(value)} value={customerName}>
-  <SelectTrigger>
-    <SelectValue placeholder="نوع الأوردر" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="داخل المطعم">داخل المطعم</SelectItem>
-    <SelectItem value="تيك أواي">تيك أواي</SelectItem>
-    <SelectItem value="دليفري">دليفري</SelectItem>
-  </SelectContent>
-</Select>
 
+            {/* Order Type Selection */}
+            <div className="space-y-2">
+              <Label>نوع الطلب</Label>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant={orderType === 'dine-in' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setOrderType('dine-in')}
+                  className={orderType === 'dine-in' ? "bg-blue-500 hover:bg-blue-600" : ""}
+                >
+                  <Home className="h-4 w-4 mr-1" />
+                  داخل المطعم
+                </Button>
+                <Button
+                  variant={orderType === 'takeaway' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setOrderType('takeaway')}
+                  className={orderType === 'takeaway' ? "bg-green-500 hover:bg-green-600" : ""}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  تيك أواي
+                </Button>
+                <Button
+                  variant={orderType === 'delivery' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setOrderType('delivery')}
+                  className={orderType === 'delivery' ? "bg-orange-500 hover:bg-orange-600" : ""}
+                >
+                  <Truck className="h-4 w-4 mr-1" />
+                  دليفري
+                </Button>
+              </div>
+            </div>
+
+            {/* Table/Driver Selection */}
+            {orderType === 'dine-in' && (
+              <div className="space-y-2">
+                <Label>اختيار الطاولة</Label>
+                <Select value={selectedTable} onValueChange={setSelectedTable}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر طاولة متاحة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTables.map((table) => (
+                      <SelectItem key={table.id} value={table.id}>
+                        طاولة {table.number} - {table.capacity} أشخاص
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedTable && (
+                  <p className="text-sm text-green-600">
+                    ✓ تم اختيار طاولة {tables.find(t => t.id === selectedTable)?.number}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {orderType === 'delivery' && (
+              <div className="space-y-2">
+                <Label>اختيار الطيار</Label>
+                <Select value={selectedDriver} onValueChange={setSelectedDriver}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر طيار متاح" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDrivers.map((driver) => (
+                      <SelectItem key={driver.id} value={driver.id}>
+                        {driver.name} - {driver.vehicleType}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedDriver && (
+                  <p className="text-sm text-green-600">
+                    ✓ تم اختيار الطيار {drivers.find(d => d.id === selectedDriver)?.name}
+                  </p>
+                )}
+              </div>
+            )}
             
             {/* Cart Items */}
             <div className="space-y-3 max-h-60 overflow-y-auto">
@@ -565,6 +726,63 @@ const POS = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Table Selection Dialog */}
+      <Dialog open={showTableDialog} onOpenChange={setShowTableDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>اختيار الطاولة</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">يرجى اختيار طاولة متاحة لإتمام الطلب</p>
+            <div className="grid grid-cols-2 gap-2">
+              {availableTables.map((table) => (
+                <Button
+                  key={table.id}
+                  variant={selectedTable === table.id ? "default" : "outline"}
+                  onClick={() => {
+                    setSelectedTable(table.id);
+                    setShowTableDialog(false);
+                  }}
+                  className="h-16 flex flex-col"
+                >
+                  <Users className="h-4 w-4 mb-1" />
+                  <span>طاولة {table.number}</span>
+                  <span className="text-xs">{table.capacity} أشخاص</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Driver Selection Dialog */}
+      <Dialog open={showDriverDialog} onOpenChange={setShowDriverDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>اختيار الطيار</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">يرجى اختيار طيار متاح لتوصيل الطلب</p>
+            <div className="space-y-2">
+              {availableDrivers.map((driver) => (
+                <Button
+                  key={driver.id}
+                  variant={selectedDriver === driver.id ? "default" : "outline"}
+                  onClick={() => {
+                    setSelectedDriver(driver.id);
+                    setShowDriverDialog(false);
+                  }}
+                  className="w-full justify-start"
+                >
+                  <Truck className="h-4 w-4 mr-2" />
+                  <span>{driver.name} - {driver.vehicleType}</span>
+                </Button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
