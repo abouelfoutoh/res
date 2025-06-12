@@ -1,4 +1,203 @@
-: 0 auto; padding: 20px; direction: rtl;">
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Calculator,
+  Search,
+  ShoppingCart,
+  Plus,
+  Minus,
+  Trash2,
+  Banknote,
+  CreditCard,
+  Printer,
+  Home,
+  Truck,
+  Users
+} from 'lucide-react';
+
+const POS = () => {
+  const { toast } = useToast();
+  
+  // Sample data - in a real app, this would come from your backend
+  const [products] = useState([
+    { id: 1, name: 'شاورما لحمة', price: 25, category: 'main', stock: 50 },
+    { id: 2, name: 'شاورما فراخ', price: 20, category: 'main', stock: 45 },
+    { id: 3, name: 'كباب', price: 30, category: 'main', stock: 30 },
+    { id: 4, name: 'كفتة', price: 28, category: 'main', stock: 25 },
+    { id: 5, name: 'فراخ مشوية', price: 35, category: 'main', stock: 20 },
+    { id: 6, name: 'سلطة خضراء', price: 12, category: 'appetizer', stock: 40 },
+    { id: 7, name: 'حمص', price: 8, category: 'appetizer', stock: 35 },
+    { id: 8, name: 'بابا غنوج', price: 10, category: 'appetizer', stock: 30 },
+    { id: 9, name: 'عصير برتقال', price: 8, category: 'beverage', stock: 60 },
+    { id: 10, name: 'شاي', price: 5, category: 'beverage', stock: 100 },
+    { id: 11, name: 'قهوة', price: 7, category: 'beverage', stock: 80 },
+    { id: 12, name: 'كنافة', price: 15, category: 'dessert', stock: 20 },
+  ]);
+
+  const [categories] = useState([
+    { id: 'all', name: 'الكل' },
+    { id: 'main', name: 'الأطباق الرئيسية' },
+    { id: 'appetizer', name: 'المقبلات' },
+    { id: 'beverage', name: 'المشروبات' },
+    { id: 'dessert', name: 'الحلويات' },
+  ]);
+
+  const [tables] = useState([
+    { id: '1', number: 1, capacity: 4, status: 'available' },
+    { id: '2', number: 2, capacity: 2, status: 'available' },
+    { id: '3', number: 3, capacity: 6, status: 'occupied' },
+    { id: '4', number: 4, capacity: 4, status: 'available' },
+    { id: '5', number: 5, capacity: 8, status: 'available' },
+  ]);
+
+  const [drivers] = useState([
+    { id: '1', name: 'أحمد محمد', vehicleType: 'دراجة نارية', status: 'available' },
+    { id: '2', name: 'محمود علي', vehicleType: 'سيارة', status: 'available' },
+    { id: '3', name: 'خالد حسن', vehicleType: 'دراجة نارية', status: 'busy' },
+  ]);
+
+  // State
+  const [cart, setCart] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [customerName, setCustomerName] = useState('');
+  const [orderType, setOrderType] = useState('takeaway');
+  const [selectedTable, setSelectedTable] = useState('');
+  const [selectedDriver, setSelectedDriver] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [lastInvoiceNumber, setLastInvoiceNumber] = useState(1000);
+  const [showTableDialog, setShowTableDialog] = useState(false);
+  const [showDriverDialog, setShowDriverDialog] = useState(false);
+
+  // Constants
+  const taxRate = 14; // 14% tax rate
+
+  // Computed values
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+    return matchesSearch && matchesCategory && product.stock > 0;
+  });
+
+  const availableTables = tables.filter(table => table.status === 'available');
+  const availableDrivers = drivers.filter(driver => driver.status === 'available');
+
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const discountAmount = (subtotal * discount) / 100;
+  const taxableAmount = subtotal - discountAmount;
+  const taxAmount = (taxableAmount * taxRate) / 100;
+  const total = taxableAmount + taxAmount;
+
+  // Functions
+  const addToCart = (product) => {
+    const existingItem = cart.find(item => item.id === product.id);
+    if (existingItem) {
+      if (existingItem.quantity < product.stock) {
+        setCart(cart.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        ));
+      } else {
+        toast({
+          title: "تحذير",
+          description: "الكمية المطلوبة غير متوفرة في المخزون",
+          variant: "destructive",
+        });
+      }
+    } else {
+      setCart([...cart, { ...product, quantity: 1 }]);
+    }
+  };
+
+  const removeFromCart = (productId) => {
+    setCart(cart.filter(item => item.id !== productId));
+  };
+
+  const updateQuantity = (productId, newQuantity) => {
+    if (newQuantity === 0) {
+      removeFromCart(productId);
+      return;
+    }
+
+    const product = products.find(p => p.id === productId);
+    if (newQuantity > product.stock) {
+      toast({
+        title: "تحذير",
+        description: "الكمية المطلوبة غير متوفرة في المخزون",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCart(cart.map(item =>
+      item.id === productId
+        ? { ...item, quantity: newQuantity }
+        : item
+    ));
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    setCustomerName('');
+    setOrderType('takeaway');
+    setSelectedTable('');
+    setSelectedDriver('');
+    setDiscount(0);
+  };
+
+  const createInvoice = (paymentMethod) => {
+    const invoiceNumber = lastInvoiceNumber + 1;
+    setLastInvoiceNumber(invoiceNumber);
+    
+    const invoice = {
+      invoiceNumber: invoiceNumber.toString().padStart(6, '0'),
+      date: new Date().toLocaleDateString('ar-EG'),
+      time: new Date().toLocaleTimeString('ar-EG'),
+      customerName: customerName || 'عميل',
+      orderType,
+      tableNumber: selectedTable ? tables.find(t => t.id === selectedTable)?.number : null,
+      driverName: selectedDriver ? drivers.find(d => d.id === selectedDriver)?.name : null,
+      items: cart,
+      subtotal,
+      discount,
+      discountAmount,
+      taxRate,
+      taxAmount,
+      total,
+      paymentMethod
+    };
+    
+    return invoice;
+  };
+
+  const reduceInventory = () => {
+    // In a real app, this would update the backend
+    console.log('Reducing inventory for items:', cart);
+  };
+
+  const getOrderTypeText = (type) => {
+    switch (type) {
+      case 'dine-in': return 'داخل المطعم';
+      case 'takeaway': return 'تيك أواي';
+      case 'delivery': return 'دليفري';
+      default: return 'تيك أواي';
+    }
+  };
+
+  const printInvoice = (invoice = null) => {
+    const invoiceData = invoice || createInvoice('cash');
+    
+    const invoiceContent = `
+      <div style="max-width: 300px; margin: 0 auto; padding: 20px; direction: rtl;">
         <div style="text-align: center; margin-bottom: 20px;">
           <h2>مطعم ابوالفتوح للمأكولات الشامية</h2>
           <p>القاهرة، مصر</p>
@@ -85,7 +284,7 @@
     }
   };
 
-  const handleCheckout = (paymentMethod: 'cash' | 'card') => {
+  const handleCheckout = (paymentMethod) => {
     // Validate order type requirements
     if (orderType === 'dine-in' && !selectedTable) {
       setShowTableDialog(true);
@@ -126,7 +325,7 @@
     });
   };
 
-  const getOrderTypeIcon = (type: string) => {
+  const getOrderTypeIcon = (type) => {
     switch (type) {
       case 'dine-in': return <Home className="h-4 w-4" />;
       case 'takeaway': return <ShoppingCart className="h-4 w-4" />;
